@@ -8,11 +8,11 @@ export class UsersController {
 
   @Post()
   async create(@Body() user: User): Promise<User> {
-    return this.usersService.create(user);
+    return this.usersService.create(user); 
   }
 
   @Get()
   async findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+    return this.usersService.findAll(); 
   }
 }
