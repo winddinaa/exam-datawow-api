@@ -1,0 +1,27 @@
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# TypeScript build files
+dist/
+build/
+
+# Debug files
+.vscode/
+.idea/
+
+# Mac system files
+.DS_Store
+
+# npm package lock file
+package-lock.json
+
+# Yarn lock file
+yarn.lock
