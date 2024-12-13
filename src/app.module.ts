@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { CommentModule } from './comments/comments.module';
+import { JwtModule } from '@nestjs/jwt';
 
 
 @Module({
@@ -16,7 +15,17 @@ import { CommentModule } from './comments/comments.module';
     }),
     PostsModule,
     UsersModule,
-    CommentModule
+    CommentModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule], // ถ้าใช้ ConfigModule เพื่อดึงข้อมูลจาก .env
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'), // ดึงค่า secret จาก .env
+        signOptions: {
+          expiresIn: '60m', // กำหนดเวลาหมดอายุของ JWT
+        },
+      }),
+    }),
 
   ],
   controllers: [],
