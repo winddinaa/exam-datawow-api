@@ -38,6 +38,6 @@ export class UsersController {
       sameSite: 'none', // หรือ 'none' สำหรับ cross-origin
       maxAge: 7200000, // อายุ cookie 1 ชั่วโมง
     });
-    res.json(result);
+    res.json({ ...result, username: loginDto.username });
   }
 }
