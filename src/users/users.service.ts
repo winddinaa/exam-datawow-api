@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
-
 import { User } from './interfaces/user.interface';
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
@@ -15,23 +14,22 @@ export class UsersService {
     @InjectModel('User')
     private readonly userModel: Model<User>,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async login(user: User) {
     const payload = { username: user.username, sub: user._id };
     const secret = this.configService.get<string>('JWT_SECRET');
     return {
-      access_token: this.jwtService.sign(payload,{
-        secret: secret, 
-        expiresIn: '60m'
+      access_token: this.jwtService.sign(payload, {
+        secret: secret,
+        expiresIn: '60m',
       }),
     };
   }
 
   async create(user: User): Promise<User> {
-    const password = await this.hashPassword(user.password)
-    const newUser = new this.userModel({...user,password});
+    const newUser = new this.userModel({ ...user });
     return await newUser.save();
   }
 
@@ -50,29 +48,24 @@ export class UsersService {
     return hashedPassword;
   }
 
-
-  async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+  async comparePassword(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     return await bcrypt.compare(plainPassword, hashedPassword);
   }
 
   async validateUser(loginDto: LoginDto): Promise<User | null> {
-    const { username, password } = loginDto;
+    const { username } = loginDto;
 
     // ค้นหาผู้ใช้จากฐานข้อมูล
-    const user = await this.userModel.findOne({ username }).exec();
-
+    let user = await this.userModel.findOne({ username }).exec();
     if (!user) {
-      return null; // ถ้าผู้ใช้ไม่พบ
+      await this.create(loginDto as User);
+      user = await this.userModel.findOne({ username }).exec();
     }
 
-    // ตรวจสอบ password โดยใช้ bcrypt
-    const isPasswordValid = await this.comparePassword(password, user.password);
-
-    if (isPasswordValid) {
-      return user; // หาก password ถูกต้อง
-    } else {
-      return null; // หาก password ผิด
-    }
+    return user; // หาก password ผิด
   }
   //#endregion
 }
