@@ -21,7 +21,7 @@ export class UsersController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const user = await this.usersService.validateUser(loginDto); // คุณต้องสร้างฟังก์ชัน validateUser
+    const user = await this.usersService.validateUser(loginDto);
     return this.usersService.login(user);
   }
 }
