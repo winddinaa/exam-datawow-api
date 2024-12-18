@@ -13,7 +13,12 @@ export class PostService {
   }
 
   async getAllPosts() {
-    return this.postModel.find().populate('author').populate('comments').exec();
+    return this.postModel
+      .find()
+      .populate('author')
+      .populate('comments')
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async getPostById(id: string) {
