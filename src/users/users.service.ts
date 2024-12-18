@@ -23,7 +23,7 @@ export class UsersService {
     return {
       access_token: this.jwtService.sign(payload, {
         secret: secret,
-        expiresIn: '60m',
+        expiresIn: '300m',
       }),
     };
   }

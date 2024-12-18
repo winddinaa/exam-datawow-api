@@ -34,9 +34,9 @@ export class UsersController {
     const result = await this.usersService.login(user);
     res.cookie('token', result.access_token, {
       httpOnly: true,
-      secure: false, // true ถ้าใช้ HTTPS
-      sameSite: 'none', // หรือ 'none' สำหรับ cross-origin
-      maxAge: 7200000, // อายุ cookie 1 ชั่วโมง
+      secure: false,
+      sameSite: 'none',
+      maxAge: 7200000,
     });
     res.json({ ...result, username: loginDto.username });
   }
