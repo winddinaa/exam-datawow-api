@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { createPostDto } from './dto/createPost.dto';
+import { updatePostDto } from './dto/updatePost.dto';
 
 @Injectable()
 export class PostService {
@@ -10,6 +11,10 @@ export class PostService {
   async createPost(data: createPostDto) {
     const newPost = new this.postModel(data);
     return newPost.save();
+  }
+
+  async updatePost(id: string, data: updatePostDto) {
+    return this.postModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async getAllPosts() {
@@ -21,11 +26,12 @@ export class PostService {
       .exec();
   }
 
-  async getPostById(id: string) {
+  async getPostByUser(userID: string) {
     return this.postModel
-      .findById(id)
+      .find({ author: userID }) // ใช้ find() เพื่อค้นหาโพสต์ทั้งหมดที่ author = userID
       .populate('author')
       .populate('comments')
+      .sort({ createdAt: -1 })
       .exec();
   }
 }

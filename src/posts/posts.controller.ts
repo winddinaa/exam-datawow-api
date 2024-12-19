@@ -6,11 +6,14 @@ import {
   Param,
   UseGuards,
   Req,
+  Query,
+  Put,
 } from '@nestjs/common';
 import { PostService } from './posts.service';
 import { JwtAuthGuard } from 'src/users/jwt-auth.guard';
 import { createPostDto } from './dto/createPost.dto';
 import { Request } from 'express';
+import { updatePostDto } from './dto/updatePost.dto';
 
 declare global {
   namespace Express {
@@ -41,18 +44,33 @@ export class PostController {
     }
   }
 
-  @Get()
-  async getAllPosts() {
+  @UseGuards(JwtAuthGuard)
+  @Put()
+  async updatePost(@Body() body: updatePostDto, @Req() req: Request) {
     try {
-      const result = await this.postService.getAllPosts();
+      const result = await this.postService.updatePost(body._id, {
+        ...body,
+      });
+
       return { data: result, status: 'success' };
     } catch (error) {
       return { data: {}, status: 'failed' };
     }
   }
 
-  @Get(':id')
-  async getPostById(@Param('id') id: string) {
-    return this.postService.getPostById(id);
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getPosts(@Query() query: { isOur: boolean }, @Req() req: Request) {
+    try {
+      let result: any;
+      if (query.isOur) {
+        result = await this.postService.getPostByUser(req.user._id);
+      } else {
+        result = await this.postService.getAllPosts();
+      }
+      return { data: result || [], status: 'success' };
+    } catch (error) {
+      return { data: [], status: 'failed' };
+    }
   }
 }
