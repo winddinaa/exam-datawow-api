@@ -8,12 +8,16 @@ import {
   Req,
   Query,
   Put,
+  Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { PostService } from './posts.service';
 import { JwtAuthGuard } from 'src/users/jwt-auth.guard';
 import { createPostDto } from './dto/createPost.dto';
 import { Request } from 'express';
 import { updatePostDto } from './dto/updatePost.dto';
+import { deletePostDto } from './dto/deletePost.dto';
 
 declare global {
   namespace Express {
@@ -40,7 +44,10 @@ export class PostController {
       });
       return { data: result, status: 'success' };
     } catch (error) {
-      return { data: {}, status: 'failed' };
+      throw new HttpException(
+        { message: 'Failed to create post', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -54,7 +61,25 @@ export class PostController {
 
       return { data: result, status: 'success' };
     } catch (error) {
-      return { data: {}, status: 'failed' };
+      throw new HttpException(
+        { message: 'Failed to update post', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  async deletePost(@Body() body: deletePostDto, @Req() req: Request) {
+    try {
+      const result = await this.postService.deletePost(body._id, req.user._id);
+      return { data: result, status: 'success' };
+    } catch (error) {
+      console.log('=> error', error);
+      throw new HttpException(
+        { message: 'Failed to delete post', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -70,7 +95,10 @@ export class PostController {
       }
       return { data: result || [], status: 'success' };
     } catch (error) {
-      return { data: [], status: 'failed' };
+      throw new HttpException(
+        { message: 'Failed to get post', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

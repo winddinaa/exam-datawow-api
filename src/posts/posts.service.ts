@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { createPostDto } from './dto/createPost.dto';
 import { updatePostDto } from './dto/updatePost.dto';
 
@@ -17,6 +17,21 @@ export class PostService {
     return this.postModel.findByIdAndUpdate(id, data, { new: true });
   }
 
+  async deletePost(id: string, userId: string) {
+    const post = await this.postModel.findById(id);
+    console.log('=> post', post);
+    console.log('=> userId', userId);
+    console.log('=> post.author', post.author);
+    if (!post) {
+      throw new Error('Post not found');
+    }
+    if (!post.author.equals(new Types.ObjectId(userId))) {
+      throw new Error('You are not authorized to delete this post');
+    }
+
+    return this.postModel.findByIdAndDelete(id);
+  }
+
   async getAllPosts() {
     return this.postModel
       .find()
@@ -28,7 +43,7 @@ export class PostService {
 
   async getPostByUser(userID: string) {
     return this.postModel
-      .find({ author: userID }) // ใช้ find() เพื่อค้นหาโพสต์ทั้งหมดที่ author = userID
+      .find({ author: userID })
       .populate('author')
       .populate('comments')
       .sort({ createdAt: -1 })
