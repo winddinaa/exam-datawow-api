@@ -36,7 +36,13 @@ export class PostService {
     return this.postModel
       .find()
       .populate('author')
-      .populate('comments')
+      .populate({
+        path: 'comments', // ดึง comments ของ Post
+        populate: {
+          path: 'author', // ดึง author ของแต่ละ Comment
+          select: 'username', // เลือก field ที่ต้องการจาก User
+        },
+      })
       .sort({ createdAt: -1 })
       .exec();
   }
