@@ -4,10 +4,13 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class CommentService {
-  constructor(@InjectModel('Comment') private readonly commentModel: Model<any>) {}
+  constructor(
+    @InjectModel('Comment') private readonly commentModel: Model<any>,
+  ) {}
 
   // สร้าง Comment ใหม่
   async createComment(data: { text: string; author: string; post: string }) {
+    console.log('=> data', data);
     const newComment = new this.commentModel(data);
     return newComment.save();
   }

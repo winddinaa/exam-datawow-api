@@ -53,7 +53,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Put()
-  async updatePost(@Body() body: updatePostDto, @Req() req: Request) {
+  async updatePost(@Body() body: updatePostDto) {
     try {
       const result = await this.postService.updatePost(body._id, {
         ...body,
